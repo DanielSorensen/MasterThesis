@@ -14,11 +14,6 @@ from matplotlib import pyplot
 import numpy as np
 import os.path
 
-class colors:
-    ok = '\033[92m'
-    fail = '\033[91m'
-    close = '\033[0m'
-
 xFile = "Data/SC2TvZImperfectClean"
 yFile = "Data/SC2TvZPerfectClean"
 
@@ -48,31 +43,19 @@ split_at = len(x_data) - len(x_data) // 5
 
 (y_train, y_val) = y_data[:split_at], y_data[split_at:]
 
-print("training data: ", x_train.shape[0])
-print("perfect data: ", y_train.shape[0])
-
-earlyStop = EarlyStopping(monitor='val_mean_squared_error', min_delta=0.00005, patience=10, verbose=0, mode='auto')
-callbacks_list = [earlyStop]
-
 HIDDEN_SIZE = 500
-HIDDEN_SIZE_2 = 500
-HIDDEN_SIZE_3 = 500
 
 model = Sequential()
 
-#model.add(Dropout(0.2, input_shape=(x_train.shape[1],)))
 model.add(Dense(output_dim=HIDDEN_SIZE, input_dim=x_train.shape[1]))
 model.add(Activation("relu"))
 model.add(Dropout(0.2, input_shape=(HIDDEN_SIZE,)))
-model.add(Dense(output_dim=HIDDEN_SIZE_2))
+model.add(Dense(output_dim=HIDDEN_SIZE))
 model.add(Activation("relu"))
-model.add(Dropout(0.2, input_shape=(HIDDEN_SIZE_2,)))
-model.add(Dense(output_dim=HIDDEN_SIZE_3))
+model.add(Dropout(0.2, input_shape=(HIDDEN_SIZE,)))
+model.add(Dense(output_dim=HIDDEN_SIZE))
 model.add(Activation("relu"))
-#model.add(Dropout(0.2, input_shape=(HIDDEN_SIZE_2,)))
-#model.add(Dense(output_dim=HIDDEN_SIZE_3))
-#model.add(Activation("relu"))
-model.add(Dropout(0.2, input_shape=(HIDDEN_SIZE_3,)))
+model.add(Dropout(0.2, input_shape=(HIDDEN_SIZE,)))
 model.add(Dense(output_dim=y_train.shape[1]))
 model.add(Activation("relu"))
 
@@ -99,12 +82,5 @@ model.save("Models/TvZ_BadTopology.h5")
 pyplot.plot(history.history['val_mean_squared_error'])
 pyplot.plot(history.history['mean_squared_error'])
 pyplot.title('Mean Squared Error')
-pyplot.legend(['Validation MSE', 'Training MSE'], loc='upper right')
+pyplot.legend(['Validation MSE', 'Training MSE'], loc='best')
 pyplot.show()
-
-
-#pyplot.plot(history.history['mean_absolute_percentage_error'])
-#pyplot.show()
-
-print("")
-print("")
