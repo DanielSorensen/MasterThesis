@@ -1,0 +1,5 @@
+/home/pitlabubuntu1/CommandCenter/s2client-api/commandcenter/CMakeFiles/edit_cache.dir
+/home/pitlabubuntu1/CommandCenter/s2client-api/commandcenter/CMakeFiles/rebuild_cache.dir
+/home/pitlabubuntu1/CommandCenter/s2client-api/commandcenter/src/CMakeFiles/edit_cache.dir
+/home/pitlabubuntu1/CommandCenter/s2client-api/commandcenter/src/CMakeFiles/rebuild_cache.dir
+/home/pitlabubuntu1/CommandCenter/s2client-api/commandcenter/src/CMakeFiles/CommandCenter.dir

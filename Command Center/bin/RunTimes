@@ -1,0 +1,5 @@
+#!/bin/bash
+for run in {1..200}
+do
+    ./CommandCenter -e /home/pitlabubuntu1/StarCraftII/Versions/Base59877/SC2_x64
+done
