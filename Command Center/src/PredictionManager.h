@@ -20,7 +20,7 @@ class CCBot;
 class PredictionManager
 #endif
 {
-    CCBot &                 m_bot;
+    CCBot & m_bot;
     int m_interval;
 
     int selfIndexModifier;
@@ -62,12 +62,12 @@ public:
     void SetEnemyRace(std::string race);
     int mapID(int actualID);
 
-    int GetCurrentFrame(); //Done
+    int GetCurrentFrame();
     double GetNormalizedMap();
-    int GetSelfRace(); //Done
-    int GetArmyCount(); //Done
-    int GetMinerals(); //Done
-    int GetGas(); //Done
+    int GetSelfRace();
+    int GetArmyCount();
+    int GetMinerals();
+    int GetGas();
 
     double GetNormalizedFrame();
     double GetNormalizedUnit(int unitVal);
