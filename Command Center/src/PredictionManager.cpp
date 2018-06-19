@@ -52,9 +52,9 @@ void PredictionManager::onStart()
     normalizedEnemyRace = enemyRace / 2.0;
 
     selfBaseXCoordinates.resize(4);
-	selfBaseYCoordinates.resize(4);
-	enemyFoWBaseXCoordinates.resize(4);
-	enemyFoWBaseYCoordinates.resize(4);
+    selfBaseYCoordinates.resize(4);
+    enemyFoWBaseXCoordinates.resize(4);
+    enemyFoWBaseYCoordinates.resize(4);
 }
 
 void PredictionManager::onStep()
@@ -66,8 +66,8 @@ void PredictionManager::onStep()
     {
         double time = (double) (frame / 24.0);
 
-	    map = GetNormalizedMap();
-	    SetUnitsAndBases();
+	map = GetNormalizedMap();
+	SetUnitsAndBases();
 
         std::string FoWUnits = "";
         std::string myUnits = "";
@@ -76,38 +76,36 @@ void PredictionManager::onStep()
         {
             FoWUnits += std::to_string(GetNormalizedUnit(m_FoWUnits[k])) + ",";
         }
+	    
+	//Remove trailing ","
         FoWUnits.pop_back();
 
         for(int k = 0; k < m_selfUnits.size(); k++)
         {
-	    //if(k != 1)
-	    //{
 		myUnits += std::to_string(GetNormalizedUnit(m_selfUnits[k])) + ",";
-	    //}
         }
+	    
+	//Remove trailing ","
         myUnits.pop_back();
 
-            std::string myBaseCoordinates = "";
-	    std::string enemyBaseCoordinates = "";
+        std::string myBaseCoordinates = "";
+	std::string enemyBaseCoordinates = "";
 
-	    for(int i = 0; i < selfBaseXCoordinates.capacity(); i++)
-	    {
+	for(int i = 0; i < selfBaseXCoordinates.capacity(); i++)
+	{
             myBaseCoordinates += std::to_string(selfBaseXCoordinates[i]) + "," + std::to_string(selfBaseYCoordinates[i]) + ",";
             enemyBaseCoordinates += std::to_string(enemyFoWBaseXCoordinates[i]) + "," + std::to_string(enemyFoWBaseYCoordinates[i]) + ",";
-	    }
+	}
 
-	    myBaseCoordinates.pop_back();
-	    enemyBaseCoordinates.pop_back();
+	//Remove trailing ","
+	myBaseCoordinates.pop_back();
+	enemyBaseCoordinates.pop_back();
 
-	    std::string modelInput = std::to_string(GetNormalizedFrame()) + "," + std::to_string(map) + "," + std::to_string(normalizedSelfRace) + "," + std::to_string(normalizedEnemyRace) + "," + myUnits + "," + FoWUnits + "," + std::to_string(GetNormalizedArmyCount()) + "," + std::to_string(GetNormalizedMinerals()) + "," + std::to_string(GetNormalizedGas()) + "," + std::to_string(GetNormalizedSelfBases()) + "," + myBaseCoordinates + "," + enemyBaseCoordinates;
-
-	//std::string modelInput = std::to_string(map) + "," + std::to_string(normalizedSelfRace) + "," + std::to_string(normalizedEnemyRace) + "," + myUnits + "," + FoWUnits + "," + std::to_string(GetNormalizedArmyCount()) + "," + std::to_string(GetNormalizedMinerals()) + "," + std::to_string(GetNormalizedGas()) + "," + myBaseCoordinates + "," + enemyBaseCoordinates;
+	std::string modelInput = std::to_string(GetNormalizedFrame()) + "," + std::to_string(map) + "," + std::to_string(normalizedSelfRace) + "," + std::to_string(normalizedEnemyRace) + "," + myUnits + "," + FoWUnits + "," + std::to_string(GetNormalizedArmyCount()) + "," + std::to_string(GetNormalizedMinerals()) + "," + std::to_string(GetNormalizedGas()) + "," + std::to_string(GetNormalizedSelfBases()) + "," + myBaseCoordinates + "," + enemyBaseCoordinates;
 
         writeFile(modelInput);
 
-        //std::vector<double> enemyState = readFile();
-        finalState += readFile() + "\n";
-
+        std::vector<double> enemyState = readFile();
     }
 #endif
 }
@@ -131,7 +129,7 @@ void PredictionManager::ResetUnitsAndBases()
         m_FoWUnits[i] = 0;
     }
 
-	for (int i = 0; i < selfBaseXCoordinates.size(); i++)
+    for (int i = 0; i < selfBaseXCoordinates.size(); i++)
     {
         selfBaseXCoordinates[i] = 0;
         selfBaseYCoordinates[i] = 0;
@@ -145,13 +143,14 @@ void PredictionManager::SetUnitsAndBases()
 #ifdef SC2API
     ResetUnitsAndBases();
     std::vector<const sc2::Unit*> allUnits = m_bot.Observation()->GetUnits();
+	
     for (int i = 0; i < allUnits.size(); i++)
     {
         if (allUnits[i]->alliance == 1)
         {
-		    int ID = mapID(allUnits[i]->unit_type) - selfIndexModifier;
-		    if(GetIfBase(selfRace, ID, selfIndexModifier))
-		    {
+	    int ID = mapID(allUnits[i]->unit_type) - selfIndexModifier;
+	    if(GetIfBase(selfRace, ID, selfIndexModifier))
+	    {
                 sc2::Point3D position = allUnits[i]->pos;
                 std::string t = std::to_string(allUnits[i]->tag);
                 if(!GetIfMapContainsID(t, selfUniqueID) && playerCount < 4)
@@ -166,20 +165,20 @@ void PredictionManager::SetUnitsAndBases()
                     selfBaseXCoordinates[selfUniqueID[t]] = (position.x / 200);
                     selfBaseYCoordinates[selfUniqueID[t]] = (position.y / 200);
                 }
-		    }
-		    m_selfUnits[ID]++;
-        }
+	    }
+	    m_selfUnits[ID]++;
+	}
 
-		if(allUnits[i]->alliance == 4 && allUnits[i]->display_type == 2)
-		{
-		    int ID = mapID(allUnits[i]->unit_type) - FoWIndexModifier;
-		    m_FoWUnits[ID]++;
-		}
-		else if(allUnits[i]->alliance == 4 && allUnits[i]->display_type == 1)
-		{
-		    int ID = mapID(allUnits[i]->unit_type) - FoWIndexModifier;
-		    m_FoWUnits[ID]++;
-		}
+	if(allUnits[i]->alliance == 4 && allUnits[i]->display_type == 2)
+	{
+	    int ID = mapID(allUnits[i]->unit_type) - FoWIndexModifier;
+	    m_FoWUnits[ID]++;
+	}
+	else if(allUnits[i]->alliance == 4 && allUnits[i]->display_type == 1)
+	{
+	    int ID = mapID(allUnits[i]->unit_type) - FoWIndexModifier;
+	    m_FoWUnits[ID]++;
+	}
         else if (allUnits[i]->alliance == 4)
         {
             int ID = mapID(allUnits[i]->unit_type);
@@ -262,14 +261,14 @@ int PredictionManager::GetSelfBaseCount()
 	else if(selfRace == 1.0)
 	{
 	    double hatch = m_selfUnits[109 - selfIndexModifier];
-        double lair = m_selfUnits[110 - selfIndexModifier];
+            double lair = m_selfUnits[110 - selfIndexModifier];
 	    double hive = m_selfUnits[111 - selfIndexModifier];
 
-        return hatch + lair + hive;
+            return hatch + lair + hive;
 	}
 	else
 	{
-        return m_selfUnits[21];
+            return m_selfUnits[21];
 	}
 #endif
 }
@@ -282,44 +281,45 @@ double PredictionManager::GetNormalizedSelfBases()
 	    double cc = (double) m_selfUnits[37 - selfIndexModifier];
 	    double oc = (double) m_selfUnits[59 - selfIndexModifier];
 	    double pf = (double) m_selfUnits[60 - selfIndexModifier];
+		
 	    if((cc + oc + pf) > 10.0)
 	    {
-            return 1.0;
+                return 1.0;
 	    }
 	    else
 	    {
-            double end = (double) (cc + oc + pf) / 10.0;
-            return end;
+                double end = (double) (cc + oc + pf) / 10.0;
+                return end;
 	    }
-	    return -1.0;
+	        return -1.0;
 	}
 	else if(selfRace == 1.0)
 	{
 	    double hatch = (double) m_selfUnits[109 - selfIndexModifier];
-        double lair = (double) m_selfUnits[110 - selfIndexModifier];
+            double lair = (double) m_selfUnits[110 - selfIndexModifier];
 	    double hive = (double) m_selfUnits[111 - selfIndexModifier];
 
 	    if((hatch + lair + hive) > 10.0)
 	    {
-            return 1.0;
+                return 1.0;
 	    }
 	    else
 	    {
-            return (hatch + lair + hive) / 10.0;
+                return (hatch + lair + hive) / 10.0;
 	    }
-	    return -1.0;
+	        return -1.0;
 	}
 	else
 	{
-        if(m_selfUnits[21] > 10.0)
-        {
-            return 1.0;
-        }
-        else
-        {
-            return m_selfUnits[21] / 10.0;
-        }
-	    return -1.0;
+            if(m_selfUnits[21] > 10.0)
+            {
+                return 1.0;
+            }
+            else
+            {
+                return m_selfUnits[21] / 10.0;
+            }
+	        return -1.0;
 	}
 #endif
 }
@@ -513,7 +513,7 @@ std::vector<double> PredictionManager::getState()
     return stateAsArray;
 }
 
-std::string PredictionManager::readFile()
+std::std::vector<double> PredictionManager::readFile()
 {
     std::stringstream buffer;
     int i = 0;
@@ -540,7 +540,8 @@ std::string PredictionManager::readFile()
     }
 
     remove("prediction.txt");
-    return buffer.str();
+    //return buffer.str();
+    return stateAsArray;
 }
 
 int PredictionManager::mapID(int actualID)
